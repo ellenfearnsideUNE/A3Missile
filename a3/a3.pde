@@ -5,7 +5,7 @@ float trailLength;
 float trailSpacing;
 float trailX;
 float trailY;
-float ground = 600;
+float ground = 630;
 boolean start = false;
 
 //this section is generation of antimissile WIP
@@ -147,10 +147,30 @@ void draw() {
       bombtime = ntime;
     }
 
+    // render intact cities
+    fill(0, 0, 255); 
+    noStroke(); 
+    for (int j = 0; j < 6; j++) {
+    float cityX = width / 7 * (j + 1);
+    float cityY = ground - 5; // position the cities exactly on the red line
+    rect(cityX - 15, cityY - 30, 30, 30); // adjust the city dimensions
+    } 
+
     for (int i = 0; i < bombs.length; i++) {
       if (bombs[i] != null) {
         bombs[i].advance();
         bombs[i].render();
+        
+        // check if bomb hits a city
+        for (int j = 0; j < 6; j++) {
+          float cityX = width / 7 * (j + 1);
+          float cityY = ground - 30; // adjust the city height to match the larger size
+          if (bombs[i].y >= cityY && bombs[i].x >= cityX - 15 && bombs[i].x <= cityX + 15) {
+            destroyCity(j);
+            bombs[i].exploded = true; // mark the bomb as exploded
+            break;
+          }
+        }
       }
     }
 
@@ -168,6 +188,24 @@ void draw() {
     text("Missile Command", width / 2, 350);
   }
 }
+
+
+void destroyCity(int cityIndex) {
+  // calculate the size and position of the destroyed city based on the intact city
+  float cityX = width / 7 * (cityIndex + 1);
+  float cityY = ground - 30; // adjust the city height to match the larger size
+  
+  // draw a black square that covers the intact city, with double height at the bottom
+  fill(0);
+  rect(cityX - 15, cityY - 30, 30, 60); // adjust the city dimensions to cover the blue square completely
+}
+
+
+
+
+
+
+
 //if mouse click, start game and also handles shooting the ABM
 void mousePressed() {
   if (!start) {
